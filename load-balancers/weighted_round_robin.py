@@ -1,5 +1,17 @@
 import random
 
+'''
+    This Load Balancing algorithm uses 'weights' that the admin can assign to
+    each server. It takes into account the weights of the server in order to
+    decide the proportion of requests to send to each server. The server with
+    greater 'weight' will be able to handle more requests compared to the server
+    with less 'weight'.
+
+    Input: List of available servers.
+    Output: A server that is not overloaded. It will prioritize green servers.
+'''
+
+# TODO: routing to green servers.
 class WeightedRoundRobin:
     class Server:
         def __init__(self, instance, weight):
