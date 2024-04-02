@@ -1,3 +1,4 @@
+from typing import List
 from flask import Flask
 import threading
 from time import sleep
@@ -10,6 +11,8 @@ class MockServer:
         def __init__(self, app, port):
                 self._port = port
                 self._app = app
+                self.weight = 0
+                self.server_address = f"127.0.0.1:{self._port}"
 
         def port(self):
                 return self._port
@@ -26,17 +29,14 @@ class MockServer:
 
                 return MockServer(app, port)
 
-def create_servers():
-    servers = []
+def create_servers() -> List[MockServer]:
+    servers: List[MockServer] = []
     global curr_port
-    for i in range(NUM_SERVERS):
+    for _ in range(NUM_SERVERS):
         appObj = MockServer.create_app(curr_port)
         t = threading.Thread(target=lambda: appObj.app().run(host='127.0.0.1', port=appObj.port(), debug=False, threaded=True))
         t.start()
-        servers.append((f"127.0.0.1:{appObj.port()}"))
+        servers.append(appObj)
         curr_port += 1
         sleep(0.1)
     return servers
-
-# if __name__ == "__main__":
-#     create_servers()
