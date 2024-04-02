@@ -26,10 +26,17 @@ class MockServer:
 
                 return MockServer(app, port)
 
-if __name__ == "__main__":
-        for i in range(NUM_SERVERS):
-                appObj = MockServer.create_app(curr_port)
-                t = threading.Thread(target=lambda: appObj.app().run(host='127.0.0.1', port=appObj.port(), debug=False, threaded=True))
-                t.start()
-                curr_port += 1
-                sleep(0.1)
+def create_servers():
+    servers = []
+    global curr_port
+    for i in range(NUM_SERVERS):
+        appObj = MockServer.create_app(curr_port)
+        t = threading.Thread(target=lambda: appObj.app().run(host='127.0.0.1', port=appObj.port(), debug=False, threaded=True))
+        t.start()
+        servers.append((f"127.0.0.1:{appObj.port()}"))
+        curr_port += 1
+        sleep(0.1)
+    return servers
+
+# if __name__ == "__main__":
+#     create_servers()
