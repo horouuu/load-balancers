@@ -6,6 +6,8 @@ from servers import create_servers
 # LBAs
 from load_balancers.weighted_round_robin import WeightedRoundRobin
 
+NUM_SERVERS = 10
+
 async def req_delay(server):
     await asyncio.sleep(3)
     res = requests.get(f"http://{server}/get")
@@ -22,7 +24,7 @@ async def req(server):
 #         asyncio.create_task(res)
 
 async def request_test(balancer):
-    for _ in range(10):
+    for _ in range(NUM_SERVERS):
         server = balancer.get_next_server()
         serverInstance = server.get_instance()
         print("server: ", server.get_instance())
