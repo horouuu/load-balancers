@@ -6,11 +6,11 @@ from servers import MockServer
 async def req_delay(server: MockServer):
     await asyncio.sleep(3)
     res = requests.get(f"http://{server.server_address}/get")
-    print(res.content)
+    print(bytes.decode(res.content, res.encoding))
 
 async def req(server: MockServer):
     res = requests.get(f"http://{server.server_address}/get")
-    print(res.content)
+    print(bytes.decode(res.content, res.encoding))
 
 async def request_test():
     for port in range(5000, 5010):
