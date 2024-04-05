@@ -3,7 +3,9 @@ import requests
 import asyncio
 from servers import MockServer
 
-async def req_delay(server: MockServer):
+NUM_SERVERS = 10
+
+async def req_delay(server):
     await asyncio.sleep(3)
     res = requests.get(f"http://{server.server_address}/get")
     print(bytes.decode(res.content, res.encoding))
@@ -19,7 +21,7 @@ async def request_test():
         asyncio.create_task(res)
 
 async def request_test(balancer):
-    for _ in range(10):
+    for _ in range(NUM_SERVERS):
         server = balancer.get_next_server()
         serverInstance = server.get_instance()
         print("server: ", server.get_instance())
