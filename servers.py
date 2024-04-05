@@ -64,9 +64,18 @@ class GreenServer(MockServer):
        
 
 
-def create_servers() -> List[MockServer]:
-    servers: List[MockServer] = []
+# split allows us to determine the amount of green and normal servers
+# Split must be some number between 0 and 1.
+def create_servers(split: float) -> List[MockServer, GreenServer]:
+    servers: List[MockServer, GreenServer] = []
     global curr_port
+    
+    if split > 1 or split < 0:
+        raise RuntimeError("Split value must be a decimal between 0 and 1")
+    
+    green_servers_amt  = int(NUM_SERVERS * split)
+    normal_servers_amt = NUM_SERVERS - green_servers_amt
+
     for _ in range(NUM_SERVERS):
         appObj = MockServer.create_app(curr_port)
         t = threading.Thread(target=lambda: appObj.app().run(host='127.0.0.1', port=appObj.port(), debug=False, threaded=True))
