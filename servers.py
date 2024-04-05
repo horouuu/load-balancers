@@ -25,7 +25,7 @@ class MockServer:
 
                 @staticmethod
                 def get_random_region():
-                        map_keys = MockServer.Region.region_map.keys()
+                        map_keys = list(MockServer.Region.region_map.keys())
                         k = choice(map_keys)
                         return MockServer.Region.region_map[k]
 
@@ -132,11 +132,29 @@ New class is a subclass of our MockServer but it will be considered a
 it produces. Specifics on implementation will be given on function definition. 
 """
 
+class GreenServer(MockServer):
+        def __init__(self, app, port, mu_footprint: int):
+              super().__init__(app, port)
+              self._mean_carbon_footprint = mu_footprint
+
+        # For now this will be the rudimentary "implementation"
+        # of our green's server carbon emmision. Server has some average
+        # carbon emission. But it is normally randomized as time passes.
+        def get_carbon_emission(self):
+               from numpy import random
+               from math import sqrt
+               return random.normal(loc=self._mean_carbon_footprint,
+                                    scale=sqrt(self._mean_carbon_footprint))
+
 def create_servers(num) -> List[MockServer]:
     servers: List[MockServer] = []
     global curr_port
     for _ in range(num):
+        # initialize server
         appObj = MockServer.create_app(curr_port)
+        appObj.region = MockServer.Region.get_region("SG-1")
+        
+        # start server thread
         t = threading.Thread(target=lambda: appObj.app.run(host='127.0.0.1', port=appObj.port, debug=False, threaded=True))
         t.start()
         servers.append(appObj)
