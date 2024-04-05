@@ -125,6 +125,12 @@ class MockServer:
                         return None
 
                 return MockServer(app, port)
+        
+"""
+New class is a subclass of our MockServer but it will be considered a
+"green server". That is, a server that takes into account the carbon footprint
+it produces. Specifics on implementation will be given on function definition. 
+"""
 
 def create_servers(num) -> List[MockServer]:
     servers: List[MockServer] = []

@@ -4,7 +4,9 @@ import asyncio
 from servers import MockServer
 from time import time
 
-async def req_delay(server: MockServer):
+NUM_SERVERS = 10
+
+async def req_delay(server):
     await asyncio.sleep(3)
     res = requests.get(f"http://{server.server_address}/get")
     print(bytes.decode(res.content, res.encoding))
