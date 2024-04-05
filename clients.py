@@ -19,7 +19,8 @@ async def req(server: MockServer):
     server.total_requests += 1
     server.avg_response_time = (server.avg_response_time + t*1000)/server.total_requests
     print(bytes.decode(res.content, res.encoding))
-    print(server.region)
+    print(f"Region: {server.region}")
+    print(f"Latency: {server.latency}")
 
 # async def request_test():
 #     for port in range(5000, 5010):

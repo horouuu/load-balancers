@@ -11,17 +11,22 @@ curr_port = PORT_START
 
 class MockServer:
         class Region:
-                prop_constant = 3*(10**8)
+                processing_delay = True
+                prop_constant = 2.1*(10**8)
                 region_map = {
-                        "US-1": ("New York", 15820),
+                        "US-1": ("New York", 15330),
                         "SG-1": ("Singapore", 2),
-                        "JP-1": ("Tokyo", 5928),
-                        "EU-1": ("Berlin", 10131)
+                        "JP-1": ("Tokyo", 5320),
+                        "EU-1": ("Berlin", 10000)
                 }
 
                 @staticmethod
-                def get_latency(region: (str, int)):
-                        return region[1]*1000/MockServer.Region.prop_constant
+                def get_latency(region: (str, int)): # returns RTT latency in ms
+                        cls_delay = 40*2 # CLS to local server RTT
+                        if (region[0] == "Singapore"):
+                                cls_delay = 0 # CLS not used in local transmissions
+
+                        return 2*(region[1]*1000/MockServer.Region.prop_constant*1000 + 8*MockServer.Region.processing_delay) + cls_delay
 
                 @staticmethod
                 def get_random_region():
@@ -39,7 +44,6 @@ class MockServer:
         def __init__(self, app, port):
                 self._port = port
                 self._app = app
-                self._latency = 0
                 self._region = MockServer.Region.get_random_region()
                 self._weight = 0
                 self._server_address = f"127.0.0.1:{self._port}"
@@ -47,9 +51,12 @@ class MockServer:
                 self._total_requests = 0
                 self._green = False
 
+                self._latency = MockServer.Region.get_latency(self.region)
+
         @property
         def port(self):
                 return self._port
+
         @property
         def app(self):
                 return self._app
@@ -62,10 +69,6 @@ class MockServer:
         def latency(self):
                 return self._latency
 
-        @latency.setter
-        def latency(self, dist):
-                self._latency = dist
-
         @property
         def region(self):
                 return self._region
@@ -73,6 +76,7 @@ class MockServer:
         @region.setter
         def region(self, region):
                 self._region = region
+                self._latency = MockServer.Region.get_latency(region)
 
         @property
         def weight(self):
@@ -152,7 +156,7 @@ def create_servers(num) -> List[MockServer]:
     for _ in range(num):
         # initialize server
         appObj = MockServer.create_app(curr_port)
-        appObj.region = MockServer.Region.get_region("SG-1")
+        appObj.region = MockServer.Region.get_region("US-1")
         
         # start server thread
         t = threading.Thread(target=lambda: appObj.app.run(host='127.0.0.1', port=appObj.port, debug=False, threaded=True))
