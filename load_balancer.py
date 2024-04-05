@@ -2,7 +2,6 @@
 import asyncio
 import collections
 from typing import List
-
 from clients import req
 from servers import MockServer
 
@@ -19,6 +18,7 @@ class LoadBalancer:
                 reverse=True)
             ))
         
+        #TODO: create real clients AND a real load balancer proxy
         while (num_of_requests > 0):
             for server, weight in sorted_weighted_servers.items():
                 for _ in range(weight):
