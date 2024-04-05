@@ -6,16 +6,16 @@ from load_balancers.weighted_round_robin import WeightedRoundRobin
 from time import time
 
 NUM_SERVERS = 10
-NUM_REQUESTS = 10000
+NUM_REQUESTS = 100
 
 def main():
-    static_lb_simulation() # Weighted Round Robin (Static) Load Balancer Algorithm
+    asyncio.run(static_lb_simulation()) # Weighted Round Robin (Static) Load Balancer Algorithm
 
-def static_lb_simulation(): 
+async def static_lb_simulation(): 
     servers: List[MockServer] = create_servers(NUM_SERVERS)
     weighted_servers: dict[MockServer, int] = WeightedRoundRobin.assign_weights(servers)
     t = time()
-    asyncio.run(LoadBalancer.simulate_weighted_round_robin(weighted_servers, NUM_REQUESTS))
+    await LoadBalancer.simulate_weighted_round_robin(weighted_servers, NUM_REQUESTS)
     t = time() - t
     print(f"Time taken: {t*1000} ms to complete {NUM_REQUESTS} requests.")
     for server in servers:
