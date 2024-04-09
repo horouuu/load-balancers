@@ -129,26 +129,6 @@ class MockServer:
                         return None
 
                 return MockServer(app, port)
-        
-"""
-New class is a subclass of our MockServer but it will be considered a
-"green server". That is, a server that takes into account the carbon footprint
-it produces. Specifics on implementation will be given on function definition. 
-"""
-
-class GreenServer(MockServer):
-        def __init__(self, app, port, mu_footprint: int):
-              super().__init__(app, port)
-              self._mean_carbon_footprint = mu_footprint
-
-        # For now this will be the rudimentary "implementation"
-        # of our green's server carbon emmision. Server has some average
-        # carbon emission. But it is normally randomized as time passes.
-        def get_carbon_emission(self):
-               from numpy import random
-               from math import sqrt
-               return random.normal(loc=self._mean_carbon_footprint,
-                                    scale=sqrt(self._mean_carbon_footprint))
 
 def create_servers(num) -> List[MockServer]:
     servers: List[MockServer] = []
