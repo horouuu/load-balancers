@@ -19,15 +19,6 @@ class LoadBalancer:
         
         #TODO: create real clients AND a real load balancer proxy
         threads = []
-        # while (num_of_requests > 0):
-        #     for server, weight in sorted_weighted_servers.items():
-        #         for _ in range(weight):
-        #             print("server: ", server.server_address)
-        #             t = threading.Thread(target=req, args=[server])
-        #             threads.append(t)
-        #             num_of_requests -= 1
-        #             if num_of_requests < 0:
-        #                 break
 
         # TODO: Add some logic to determine split between fast_response clients and normal clients.
         for _ in range(num_of_clients):

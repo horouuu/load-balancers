@@ -1,9 +1,7 @@
-from typing import List
+from typing import List, Dict
 from flask import Flask
-from flask import request
 import threading
 from time import sleep
-from sys import maxsize
 from random import choice
 
 PORT_START = 5000
@@ -22,7 +20,7 @@ class MockServer:
 
                 @staticmethod
                 def get_latency(region: (str, int)): # returns RTT latency in ms
-                        cls_delay = 40*2 # CLS to local server RTT
+                        cls_delay = 40 * 2 # CLS to local server RTT
                         if (region[0] == "Singapore"):
                                 cls_delay = 0 # CLS not used in local transmissions
 
@@ -130,18 +128,34 @@ class MockServer:
 
                 return MockServer(app, port)
 
-def create_servers(num) -> List[MockServer]:
+# Server Params allows us to specify region and whether a server is green.
+def create_servers(server_params: Dict[str, int]) -> List[MockServer]:
     servers: List[MockServer] = []
     global curr_port
-    for _ in range(num):
-        # initialize server
-        appObj = MockServer.create_app(curr_port)
-        appObj.region = MockServer.Region.get_region("US-1")
-        
-        # start server thread
-        t = threading.Thread(target=lambda: appObj.app.run(host='127.0.0.1', port=appObj.port, debug=False, threaded=True))
-        t.start()
-        servers.append(appObj)
-        curr_port += 1
-        sleep(0.1)
+    for server_type, server_num in server_params.items():
+        server_info = server_type.split(' ')
+        for _ in range(server_num):
+            appObj = MockServer.create_app(curr_port)
+            appObj.region = MockServer.Region.get_region(server_info[0])
+            appObj.green  = (True if server_info[1] == "Green" else False)
+            
+            # Start server threat
+            t = threading.Thread(target= lambda: appObj.app.run(host='127.0.0.1', port=appObj.port, debug=False, threaded=True))
+            t.start()
+            servers.append(appObj)
+            curr_port += 1
+            sleep(0.1)
+
     return servers
+
+
+# # initialize server
+# appObj = MockServer.create_app(curr_port)
+# appObj.region = MockServer.Region.get_region("US-1")
+
+# # start server thread
+# t = threading.Thread(target=lambda: appObj.app.run(host='127.0.0.1', port=appObj.port, debug=False, threaded=True))
+# t.start()
+# servers.append(appObj)
+# curr_port += 1
+# sleep(0.1)
