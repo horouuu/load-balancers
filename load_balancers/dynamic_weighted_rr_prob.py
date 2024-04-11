@@ -48,7 +48,7 @@ class DynamicWeightedRoundRobin:
         for s in self.servers:
             
             # Check region:
-            region, latency, power = s.region
+            region = s.region
             
             if region == "Singapore":
                 s.weight = singapore_weight
@@ -62,7 +62,7 @@ class DynamicWeightedRoundRobin:
             if s.green == True and not is_fast_response:
                 s.weight += green_serv_weight
 
-            s.weight += 10 / s.latency        
+            s.weight += 50 / s.latency        
 
     def calculate_cumulative_weights(self, servers):
         cumulative_weights = [0] * len(servers)

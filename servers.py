@@ -142,9 +142,9 @@ class MockServer:
                 server_load = self.num_of_req_in_window / self._capacity
 
                 if server_load < .50:
-                        self.weight += .125
+                        self.weight += .25 * self.num_of_req_in_window
                 else:
-                        self.weight -= .125
+                        self.weight -= .25
     
 
         def create_app(self, isDynamic: bool = False) -> Flask:       
@@ -156,7 +156,8 @@ class MockServer:
                                 self.num_of_req_in_window = 1
                         else:
                                 # Adjust multiplicative factor to increase amount of delay
-                                sleep(exp(self.num_of_req_in_window/1000*10*10))
+                                delay_factor = exp(self.num_of_req_in_window) / 1000   
+                                sleep(delay_factor)
                                 self.num_of_req_in_window += 1
                         
                         if isDynamic:

@@ -61,7 +61,7 @@ class WeightedRoundRobin:
             if s.green == True and not is_fast_response:
                 s.weight += green_serv_weight
 
-            s.weight += 10 / s.latency
+            s.weight += 2 / s.latency
             
 
     def calculate_cumulative_weights(self, servers):
