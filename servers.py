@@ -156,7 +156,7 @@ class MockServer:
                                 self.num_of_req_in_window = 1
                         else:
                                 # Adjust multiplicative factor to increase amount of delay
-                                sleep(exp(self.num_of_req_in_window/1000*10*10))
+                                sleep(exp(self.num_of_req_in_window/1000*10*10).real)
                                 self.num_of_req_in_window += 1
                         
                         if isDynamic:
@@ -189,4 +189,5 @@ def create_servers(server_params: Dict[str, int], isDynamic=False) -> List[MockS
             curr_port += 1
             sleep(0.1)
 
+    curr_port = 5000
     return servers

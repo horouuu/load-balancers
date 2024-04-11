@@ -14,7 +14,7 @@ import random
 '''
 
 # TODO: routing to green servers.
-class WeightedRoundRobin:
+class Random:
     class Server:
         def __init__(self, instance, weight):
             self.instance = instance

@@ -5,6 +5,7 @@ from clients import MockClient
 from servers import MockServer
 from load_balancers.weighted_round_robin_prob import WeightedRoundRobin
 from load_balancers.dynamic_weighted_rr_prob import DynamicWeightedRoundRobin
+from load_balancers.random import Random
 from time import sleep
 
 class LoadBalancer: 
@@ -15,6 +16,8 @@ class LoadBalancer:
         
         if isDynamic:
             LoadBalancer = DynamicWeightedRoundRobin(servers)
+        elif random:
+            LoadBalancer = Random
         else:
             LoadBalancer = WeightedRoundRobin(servers)
 
