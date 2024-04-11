@@ -28,3 +28,7 @@ class MockClient:
             print(bytes.decode(res.content, res.encoding))
             print(f"Region: {server.region}")
             print(f"Latency: {server.latency}")
+
+
+def kill(server: MockServer):
+    res = requests.get(f"http://{server.server_address}/kill")

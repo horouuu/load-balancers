@@ -3,6 +3,7 @@ from flask import Flask
 import threading
 from time import sleep, time
 from random import choice
+import os, signal
 
 PORT_START = 5000
 curr_port = PORT_START
@@ -43,12 +44,13 @@ class MockServer:
                 self._port = port
                 self._app = None
                 self._region = MockServer.Region.get_random_region()
-                self._weight = 0
-                self._server_address = f"127.0.0.1:{self._port}"
-                self._avg_response_time = 0
-                self._total_requests = 0
-                self._green = False
+                self._weight = 0 # reset
+                self._server_address = f"127.0.0.1:{self._port}" 
+                self._avg_response_time = 0 # reset
+                self._total_requests = 0 # reset
+                self._green = False 
                 self._capacity = capacity
+                self._request_size = 0.0005 # size in gigabits, tunable
 
                 # TODO: Research how much CO2/Req is released
                 self._carbon_emission = None
@@ -160,6 +162,10 @@ class MockServer:
                                 self.update_weight()
                         return f"Get request successful at port: {self.port}."
 
+                @app.route('/kill', methods=['GET'])
+                def kill_server():
+                        raise RuntimeError
+                                
                 self.app = app
                 return app
 
