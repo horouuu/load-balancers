@@ -5,8 +5,8 @@ from servers import MockServer, create_servers
 from load_balancers.weighted_round_robin import WeightedRoundRobin
 from time import time
 
-NUM_CLIENTS = 10
-NUM_REQUESTS = 100  # Note :: This will be PER CLIENT. if NUM_CLIENTS = 10 and NUM_REQUEST = 100; then
+NUM_CLIENTS = 1
+NUM_REQUESTS = 10    # Note :: This will be PER CLIENT. if NUM_CLIENTS = 10 and NUM_REQUEST = 100; then
                     # total number of requests is 1000
 
 # Dict allows us to allocate which server regions we would like to use and how many of those should be green.

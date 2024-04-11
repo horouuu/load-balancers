@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from flask import Flask
 import threading
 from time import sleep
@@ -19,7 +19,7 @@ class MockServer:
                 }
 
                 @staticmethod
-                def get_latency(region: (str, int)): # returns RTT latency in ms
+                def get_latency(region: Tuple[str, int]): # returns RTT latency in ms
                         cls_delay = 40 * 2 # CLS to local server RTT
                         if (region[0] == "Singapore"):
                                 cls_delay = 0 # CLS not used in local transmissions
@@ -108,6 +108,12 @@ class MockServer:
         def green(self, g):
                 self._green = g
 
+
+        @staticmethod
+        def terminate_app(self, app: Flask):
+                pass
+
+
         @staticmethod
         def create_app(port):       
                 app = Flask(__name__)
@@ -147,15 +153,3 @@ def create_servers(server_params: Dict[str, int]) -> List[MockServer]:
             sleep(0.1)
 
     return servers
-
-
-# # initialize server
-# appObj = MockServer.create_app(curr_port)
-# appObj.region = MockServer.Region.get_region("US-1")
-
-# # start server thread
-# t = threading.Thread(target=lambda: appObj.app.run(host='127.0.0.1', port=appObj.port, debug=False, threaded=True))
-# t.start()
-# servers.append(appObj)
-# curr_port += 1
-# sleep(0.1)

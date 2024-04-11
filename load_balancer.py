@@ -1,9 +1,8 @@
 import collections
 import threading
-from typing import List
 from clients import MockClient
 from servers import MockServer
-
+from time import sleep
 
 class LoadBalancer: 
     def __init__(self):
@@ -17,8 +16,15 @@ class LoadBalancer:
                 reverse=True)
             ))
         
-        #TODO: create real clients AND a real load balancer proxy
         threads = []
+
+        # TODO: a real load balancer proxy
+
+        # proxy = Proxy(None, sorted_weighted_servers)
+        # proxy_t = threading.Thread(target=proxy.process_requests, args=[num_of_clients])
+        # proxy_t.start()
+
+        sleep(1)
 
         # TODO: Add some logic to determine split between fast_response clients and normal clients.
         for _ in range(num_of_clients):
@@ -38,6 +44,5 @@ class LoadBalancer:
 
         for t in threads:
             t.join()
-
     
     

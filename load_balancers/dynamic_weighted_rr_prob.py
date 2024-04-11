@@ -1,5 +1,3 @@
-from ..main import *
-from ..servers import GreenServer
 import random
 
 '''
