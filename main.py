@@ -2,8 +2,8 @@ import asyncio
 from typing import List, Dict
 from load_balancer import LoadBalancer
 from servers import MockServer, create_servers
-from load_balancers.weighted_round_robin import WeightedRoundRobin
 from time import time
+from sys import argv
 
 NUM_CLIENTS = 1
 NUM_REQUESTS = 1000    # Note :: This will be PER CLIENT. if NUM_CLIENTS = 10 and NUM_REQUEST = 100; then
@@ -28,25 +28,35 @@ def main():
     asyncio.run(static_lb_simulation()) # Weighted Round Robin (Static) Load Balancer Algorithm
 
 async def static_lb_simulation(): 
-    servers: List[MockServer] = create_servers(SEVER_PARAMS)
-    weighted_servers: dict[MockServer, int] = WeightedRoundRobin.assign_weights(servers)
+
+    if "-dynamic" in argv:
+        isDynamic = True
+    else: 
+        isDynamic = False
+
+    servers: List[MockServer] = create_servers(SEVER_PARAMS, isDynamic)
     t = time()
-    await LoadBalancer.simulate_weighted_round_robin(weighted_servers, NUM_CLIENTS, NUM_REQUESTS)
+    await LoadBalancer.simulate_weighted_round_robin(servers, NUM_CLIENTS, NUM_REQUESTS, isDynamic)
     t = time() - t
     total_power_usage = 0
     total_green = 0
     total_requests = 0
-    print(f"Time taken: {t*1000} ms to complete {NUM_REQUESTS} requests.")
-    for server in servers:
+
+    print("-------------------")
+    print(f"Summary {'(Dynamic)' if isDynamic else ''}")
+    print("-------------------")
+    print(f"Time taken: {t*1000} ms to complete {NUM_REQUESTS * NUM_CLIENTS} requests.\n")
+    for server in sorted(servers, key= lambda s: s.weight, reverse=True):
+        print(f"{server.region[0]}{" (Green)" if server.green else ""}:\nAverage response time: {server.avg_response_time} ms\nWeight: {server.weight}\nTotal # of requests: {server._total_requests}\n")
         if server.green: total_green += 1
         total_requests += server.total_requests
         total_power_usage += server.trans_power_usage
-        print(server.avg_response_time, server.weight, server.total_requests, server.region)
-
+    print(f"Time taken: {t*1000} ms to complete {NUM_REQUESTS} requests.")
     print(f"Total requests served: {total_requests}")
     print(f"Total power used in transmitting data: {total_power_usage/1000} kW.")
     print(f"Total green requests: {total_green}")
     print(f"Percentage of requests that used green energy servers: {total_green/total_requests * 100}%")
+
 
 if __name__ == "__main__": 
     main()

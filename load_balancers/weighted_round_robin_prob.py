@@ -1,3 +1,5 @@
+from servers import MockServer
+from typing import List, Optional
 import random
 
 '''
@@ -25,24 +27,59 @@ class WeightedRoundRobin:
             return self.weight
 
     def __init__(self, servers):
-        self.servers = servers[:]
-        self.total_weight = sum(server.get_weight() for server in servers)
+        self.servers: List[MockServer] = servers[:]
+        self.servers = sorted(servers, key= lambda server: server.weight)
+        self.total_weight = sum(server.weight for server in servers)
         self.cumulative_weights = self.calculate_cumulative_weights(servers)
         self.random = random.Random()
 
+    def assign_weights(self, is_fast_response: bool):
+
+        # Base static weight on
+        # Region.
+        # Distance
+        # Greeness
+
+        singapore_weight = 6
+        japan_weight = 3
+        european_weight = 2
+        us_weight = 1
+
+        green_serv_weight = 3
+
+        for s in self.servers:
+            
+            # Check region:
+            region, latency = s.region
+            
+            if region == "Singapore":
+                s.weight = singapore_weight
+            elif region == "Tokyo":
+                s.weight = japan_weight
+            elif region == "Berlin":
+                s.weight = european_weight
+            elif region == "New York":
+                s.weight = us_weight
+
+            if s.green == True and not is_fast_response:
+                s.weight += green_serv_weight
+
+            s.weight += 1 / s.latency
+            
+
     def calculate_cumulative_weights(self, servers):
         cumulative_weights = [0] * len(servers)
-        cumulative_weights[0] = servers[0].get_weight()
+        cumulative_weights[0] = servers[0].weight
         for i in range(1, len(servers)):
-            cumulative_weights[i] = cumulative_weights[i - 1] + servers[i].get_weight()
+            cumulative_weights[i] = cumulative_weights[i - 1] + servers[i].weight
         return cumulative_weights
 
-    def get_next_server(self):
-        current_index = 0
+    def get_next_server(self) -> Optional[dict[MockServer, float]]:
         # randomly choose a server (to send request)
-        random_value = self.random.randint(0, self.total_weight - 1)
-        for i, weight in enumerate(self.cumulative_weights):
-            if random_value < weight:
-                current_index = i
-                break
-        return self.servers[current_index]
+        random_value = int(self.random.random() * max([server.weight for server in self.servers]))
+        for server in self.servers:
+            if random_value < server.weight:
+                self.servers.append(self.servers.pop(0))
+
+                return server
+        return None
