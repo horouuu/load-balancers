@@ -12,10 +12,10 @@ class MockServer:
                 processing_delay = True
                 prop_constant = 2.1*(10**8)
                 region_map = {
-                        "US-1": ("New York", 15330),
-                        "SG-1": ("Singapore", 2),
-                        "JP-1": ("Tokyo", 5320),
-                        "EU-1": ("Berlin", 10000)
+                        "US-1": ("New York", 15330, 6122.6),
+                        "SG-1": ("Singapore", 2, 10),
+                        "JP-1": ("Tokyo", 5320, 2160),
+                        "EU-1": ("Berlin", 10000, 3990.4)
                 }
 
                 @staticmethod
@@ -40,6 +40,7 @@ class MockServer:
                                 return ("Singapore", 2)
 
         def __init__(self, app, port):
+                self._green = False
                 self._port = port
                 self._app = app
                 self._region = MockServer.Region.get_random_region()
@@ -47,8 +48,6 @@ class MockServer:
                 self._server_address = f"127.0.0.1:{self._port}"
                 self._avg_response_time = 0
                 self._total_requests = 0
-                self._green = False
-
                 self._latency = MockServer.Region.get_latency(self.region)
 
         @property
@@ -107,12 +106,16 @@ class MockServer:
         @green.setter
         def green(self, g):
                 self._green = g
+                self._transmission_power = 0
 
+        @property
+        def trans_power_usage(self):
+                # two-way transmission power usage
+                return (self.total_requests * self.avg_response_time * self.region[2])*2
 
         @staticmethod
         def terminate_app(self, app: Flask):
                 pass
-
 
         @staticmethod
         def create_app(port):       
