@@ -6,8 +6,7 @@ import random
     chooses random server from server list
 '''
 
-# TODO: routing to green servers.
-class WeightedRoundRobin:
+class Random:
     class Server:
         def __init__(self, instance, weight):
             self.instance = instance

@@ -12,12 +12,12 @@ class LoadBalancer:
     def __init__(self):
         pass
 
-    async def simulate_weighted_round_robin(servers: List[MockServer], num_of_clients: int, num_of_requests: int, isDynamic: bool, fastResponse: bool):
+    async def simulate_weighted_round_robin(servers: List[MockServer], num_of_clients: int, num_of_requests: int, isDynamic: bool, fastResponse: bool, random: bool=False):
         
         if isDynamic:
             LoadBalancer = DynamicWeightedRoundRobin(servers)
         elif random:
-            LoadBalancer = Random
+            LoadBalancer = Random(servers)
         else:
             LoadBalancer = WeightedRoundRobin(servers)
 
