@@ -47,7 +47,7 @@ async def static_lb_simulation():
     print("-------------------")
     print(f"Time taken: {t*1000} ms to complete {NUM_REQUESTS * NUM_CLIENTS} requests.\n")
     for server in sorted(servers, key= lambda s: s.weight, reverse=True):
-        print(f"{server.region[0]}{" (Green)" if server.green else ""}:\nAverage response time: {server.avg_response_time} ms\nWeight: {server.weight}\nTotal # of requests: {server._total_requests}\n")
+        print(f'{server.region[0]}{"(Green)" if server.green else ""}:\nAverage response time: {server.avg_response_time} ms\nWeight: {server.weight}\nTotal # of requests: {server._total_requests}\n')
         if server.green: total_green += 1
         total_requests += server.total_requests
         total_power_usage += server.trans_power_usage
