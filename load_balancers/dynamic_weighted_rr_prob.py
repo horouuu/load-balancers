@@ -51,7 +51,7 @@ class DynamicWeightedRoundRobin:
         for s in self.servers:
             
             # Check region:
-            region, latency = s.region
+            region, latency, power = s.region
             
             if region == "Singapore":
                 s.weight = singapore_weight
