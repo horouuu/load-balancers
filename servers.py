@@ -1,3 +1,4 @@
+from cmath import exp
 from typing import List, Dict, Tuple
 from flask import Flask
 import threading
@@ -153,9 +154,9 @@ class MockServer:
                         if time() > self.time_of_first_request_in_span + self.window:
                                 self.time_of_first_request_in_span = time()
                                 self.num_of_req_in_window = 1
-                        else: 
+                        else:
                                 # Adjust multiplicative factor to increase amount of delay
-                                sleep(self.num_of_req_in_window/1000*10)
+                                sleep(exp(self.num_of_req_in_window/1000*10*10))
                                 self.num_of_req_in_window += 1
                         
                         if isDynamic:
