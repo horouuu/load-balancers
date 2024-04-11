@@ -51,7 +51,7 @@ class MockServer:
 
                 # variables for fake congestion
                 self.time_of_first_request_in_span = time()
-                self.window = 1
+                self.window = 1 # window of time that the server considers
                 self.num_of_req_in_window = 0
 
                 self._latency = MockServer.Region.get_latency(self.region)
@@ -131,6 +131,7 @@ class MockServer:
                                 self.time_of_first_request_in_span = time()
                                 self.num_of_req_in_window = 1
                         else: 
+                                # Adjust multiplicative factor to increase amount of delay
                                 sleep(self.num_of_req_in_window/1000*10)
                                 self.num_of_req_in_window += 1
                         return f"Get request successful at port: {self.port}."
