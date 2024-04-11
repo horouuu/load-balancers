@@ -13,30 +13,21 @@ class LoadBalancer:
     async def simulate_weighted_round_robin(servers: List[MockServer], num_of_clients: int, num_of_requests: int):
         
         LoadBalancer = WeightedRoundRobin(servers)
-        
-        weighted_servers: List[MockServer] = LoadBalancer.servers
-        
         threads = []
-
-        # TODO: a real load balancer proxy
-
-        # proxy = Proxy(None, sorted_weighted_servers)
-        # proxy_t = threading.Thread(target=proxy.process_requests, args=[num_of_clients])
-        # proxy_t.start()
 
         sleep(1)
 
         # TODO: Add some logic to determine split between fast_response clients and normal clients.
         for _ in range(num_of_clients):
             client = MockClient()
+            server = LoadBalancer.get_next_server()
+            print("server: ", server._server_address)
             for _ in range(num_of_requests):
-                server = LoadBalancer.get_next_server()
                 if server is None:
                     continue
                 
-                print("server: ", server._server_address)
                 # Capacity iteration is sent directly to request arg of client.
-                t = threading.Thread(target=client.req, args=[server, server.weight])
+                t = threading.Thread(target=client.req, args=[server])
                 t.start()
                 threads.append(t)
 

@@ -27,19 +27,19 @@ class DynamicWeightedRoundRobin:
             return self.weight
 
     def __init__(self, servers):
-        self.servers = self._assign_weights(servers[:])
+        self.servers = servers[:]
+        self._assign_weights(servers[:])
         self.total_weight = sum(server.weight for server in servers)
         self.cumulative_weights = self.calculate_cumulative_weights(servers)
         self.random = random.Random()
 
     @staticmethod
-    def _assign_weights( servers: List[MockServer]) -> dict[MockServer: int]:
-        server_to_weight = {}
+    def _assign_weights( servers: List[MockServer]):
         for s in servers:
+            # New higher weights variances.
+            print(f"Server Region :: {s.region}")
             s.weight = random.randint(1, len(servers))
-            server_to_weight[s] = s.weight
 
-        return server_to_weight
 
     def calculate_cumulative_weights(self, servers):
         cumulative_weights = [0] * len(servers)

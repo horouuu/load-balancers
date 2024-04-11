@@ -4,8 +4,8 @@ from load_balancer import LoadBalancer
 from servers import MockServer, create_servers
 from time import time
 
-NUM_CLIENTS = 1
-NUM_REQUESTS = 10    # Note :: This will be PER CLIENT. if NUM_CLIENTS = 10 and NUM_REQUEST = 100; then
+NUM_CLIENTS = 10
+NUM_REQUESTS = 20    # Note :: This will be PER CLIENT. if NUM_CLIENTS = 10 and NUM_REQUEST = 100; then
                     # total number of requests is 1000
 
 # Dict allows us to allocate which server regions we would like to use and how many of those should be green.
