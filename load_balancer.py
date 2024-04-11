@@ -17,18 +17,35 @@ class LoadBalancer:
 
         sleep(1)
 
-        # TODO: Add some logic to determine split between fast_response clients and normal clients.
-        for _ in range(num_of_clients):
+        total_num_of_requests = num_of_clients * num_of_requests
+
+        while total_num_of_requests > 0:
             client = MockClient()
-            for _ in range(num_of_requests):
-                server = LoadBalancer.get_next_server()
-    
-                # Capacity iteration is sent directly to request arg of client.
+            server = LoadBalancer.get_next_server()
+            for _ in range(int(server.weight)):
                 t = threading.Thread(target=client.req, args=[server])
                 t.start()
                 threads.append(t)
+                total_num_of_requests -= 1
+                if total_num_of_requests == 0:
+                    break
 
         for t in threads:
             t.join()
+
+
+        # # TODO: Add some logic to determine split between fast_response clients and normal clients.
+        # for _ in range(num_of_clients):
+        #     client = MockClient()
+        #     for _ in range(num_of_requests):
+        #         server = LoadBalancer.get_next_server()
+    
+        #         # Capacity iteration is sent directly to request arg of client.
+        #         t = threading.Thread(target=client.req, args=[server])
+        #         t.start()
+        #         threads.append(t)
+
+        # for t in threads:
+        #     t.join()
     
     
