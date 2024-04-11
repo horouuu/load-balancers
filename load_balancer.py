@@ -21,6 +21,8 @@ class LoadBalancer:
         else:
             LoadBalancer = WeightedRoundRobin(servers)
 
+        print(isDynamic, random)
+
         threads = []
 
         total_num_of_requests = num_of_clients * num_of_requests

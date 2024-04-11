@@ -23,7 +23,8 @@ class Random:
         self.servers = sorted(servers, key= lambda server: server.weight, reverse=True)
 
     def assign_weights(self, is_fast_response: bool):
-        pass
+        for s in self.servers:
+            s.weight = 1
             
 
     def calculate_cumulative_weights(self, servers):

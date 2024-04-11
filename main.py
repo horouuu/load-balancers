@@ -7,7 +7,7 @@ from sys import argv
 from math import ceil, floor
 from clients import kill
 NUM_CLIENTS = 1
-NUM_REQUESTS = 100    # Note :: This will be PER CLIENT. if NUM_CLIENTS = 10 and NUM_REQUEST = 100; then
+NUM_REQUESTS = 720    # Note :: This will be PER CLIENT. if NUM_CLIENTS = 10 and NUM_REQUEST = 100; then
                     # total number of requests is 1000
 
 # Dict allows us to allocate which server regions we would like to use and how many of those should be green.
@@ -44,19 +44,13 @@ def main():
     asyncio.run(static_lb_simulation()) # Weighted Round Robin (Static) Load Balancer Algorithm
 
 async def static_lb_simulation(): 
-    if "-dynamic" in argv:
-        isDynamic = True
-    else: 
-        isDynamic = False
-
-    if "-fast-response" in argv:
-        fast_response = True
-    else:
-        fast_response = False
+    isDynamic = "-dynamic" in argv
+    nolb = "-no-lb" in argv
+    fast_response = "-fast-response" in argv
 
     servers: List[MockServer] = create_servers(SEVER_PARAMS, isDynamic)
     t = time()
-    await LoadBalancer.simulate_weighted_round_robin(servers, NUM_CLIENTS, NUM_REQUESTS, isDynamic, fast_response)
+    await LoadBalancer.simulate_weighted_round_robin(servers, NUM_CLIENTS, NUM_REQUESTS, isDynamic, fast_response, nolb)
     t = time() - t
     total_power_usage = 0
     total_green = 0
@@ -138,7 +132,7 @@ async def static_lb_simulation():
     print(f"BENCHMARK Results {'Dynamic' if isDynamic else 'Static'} vs. {argv[idx+1]}")
     print("-------------------")
     print(f"Requests served: {total_requests} -> {bm_total_requests}")
-    print(f"Time delta: {t}ms -> {bm_t}ms")
+    print(f"Time delta: {t*1000}ms -> {bm_t*1000}ms")
     print(f"Power delta: {total_power_usage/1000}kW -> {bm_total_power_usage/1000}kW")
     print(f"Green request delta: {total_green} | {floor(total_green/total_requests*100)}% -> {bm_total_green} | {floor(bm_total_green/total_requests * 100)}%")
     print(f"International delta: {total_inter} | {floor(total_inter/total_requests*100)}% -> {bm_total_inter} | {floor(bm_total_inter/bm_total_requests*100)}%")
