@@ -80,5 +80,7 @@ class WeightedRoundRobin:
         random_value = int(self.random.random() * max([server.weight for server in self.servers]))
         for server in self.servers:
             if random_value < server.weight:
+                self.servers.append(self.servers.pop(0))
+
                 return server
         return None

@@ -14,7 +14,7 @@ import random
 '''
 
 # TODO: routing to green servers.
-class DynamicWeightedRoundRobin:
+class WeightedRoundRobin:
     class Server:
         def __init__(self, instance, weight):
             self.instance = instance
@@ -27,19 +27,46 @@ class DynamicWeightedRoundRobin:
             return self.weight
 
     def __init__(self, servers):
-        self.servers = servers[:]
-        self._assign_weights(servers[:])
+        self.servers: List[MockServer] = servers[:]
+        self._assign_weights()
+        self.servers = sorted(servers, key= lambda server: server.weight)
         self.total_weight = sum(server.weight for server in servers)
         self.cumulative_weights = self.calculate_cumulative_weights(servers)
         self.random = random.Random()
 
-    @staticmethod
-    def _assign_weights( servers: List[MockServer]):
-        for s in servers:
-            # New higher weights variances.
-            print(f"Server Region :: {s.region}")
-            s.weight = random.randint(1, len(servers))
+    def _assign_weights(self):
 
+        # Base static weight on
+        # Region.
+        # Distance
+        # Greeness
+
+        singapore_weight = 4
+        japan_weight = 3
+        european_weight = 2
+        us_weight = 1
+
+        green_serv_weight = 3
+
+        for s in self.servers:
+            
+            # Check region:
+            region, latency = s.region
+            
+            if region == "Singapore":
+                s.weight += singapore_weight
+            elif region == "Tokyo":
+                s.weight += japan_weight
+            elif region == "Berlin":
+                s.weight += european_weight
+            elif region == "New York":
+                s.weight += us_weight
+
+            if s.green == True:
+                s.weight += green_serv_weight
+
+            s.weight += 1 / s.latency
+            
 
     def calculate_cumulative_weights(self, servers):
         cumulative_weights = [0] * len(servers)
@@ -50,8 +77,8 @@ class DynamicWeightedRoundRobin:
 
     def get_next_server(self) -> Optional[dict[MockServer, float]]:
         # randomly choose a server (to send request)
-        random_value = int(self.random.random() * max(list(self.servers.values())))
-        for server, weight in self.servers.items():
-            if random_value < weight:
-                return server, weight
+        random_value = int(self.random.random() * max([server.weight for server in self.servers]))
+        for server in self.servers:
+            if random_value < server.weight:
+                return server
         return None
