@@ -28,6 +28,7 @@ class LoadBalancer:
             LoadBalancer.assign_weights(client.fast_response)
 
             server = LoadBalancer.get_next_server()
+
             for _ in range(int(server.weight)):
                 t = threading.Thread(target=client.req, args=[server])
                 t.start()
@@ -35,7 +36,9 @@ class LoadBalancer:
                 total_num_of_requests -= 1
                 if total_num_of_requests == 0:
                     break
-
+                # get next server should change to just sort after weights are updated 
+            servers = sorted(servers, key=lambda server: server.weight, reverse=True)
+            
         for t in threads:
             t.join()
 

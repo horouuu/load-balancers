@@ -28,10 +28,7 @@ class WeightedRoundRobin:
 
     def __init__(self, servers):
         self.servers: List[MockServer] = servers[:]
-        self.servers = sorted(servers, key= lambda server: server.weight)
-        self.total_weight = sum(server.weight for server in servers)
-        self.cumulative_weights = self.calculate_cumulative_weights(servers)
-        self.random = random.Random()
+        self.servers = sorted(servers, key= lambda server: server.weight, reverse=True)
 
     def assign_weights(self, is_fast_response: bool):
 
@@ -64,7 +61,7 @@ class WeightedRoundRobin:
             if s.green == True and not is_fast_response:
                 s.weight += green_serv_weight
 
-            s.weight += 1 / s.latency
+            s.weight += 10 / s.latency
             
 
     def calculate_cumulative_weights(self, servers):
@@ -75,11 +72,6 @@ class WeightedRoundRobin:
         return cumulative_weights
 
     def get_next_server(self) -> Optional[dict[MockServer, float]]:
-        # randomly choose a server (to send request)
-        random_value = int(self.random.random() * max([server.weight for server in self.servers]))
-        for server in self.servers:
-            if random_value < server.weight:
-                self.servers.append(self.servers.pop(0))
-
-                return server
-        return None
+        next_server = self.servers.pop(0)
+        self.servers.append(next_server)
+        return next_server
