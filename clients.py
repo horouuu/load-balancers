@@ -7,7 +7,6 @@ class MockClient:
     def __init__(self) -> None:
         # If true, request should have some tag to let LB know client needs a fast response time.
         self._fast_response = False
-
     @property
     def fast_response(self):
         return self._fast_response

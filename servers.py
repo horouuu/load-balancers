@@ -39,7 +39,7 @@ class MockServer:
                         except KeyError:
                                 return ("Singapore", 2)
 
-        def __init__(self, port):
+        def __init__(self, port, capacity=10):
                 self._port = port
                 self._app = None
                 self._region = MockServer.Region.get_random_region()
@@ -48,6 +48,12 @@ class MockServer:
                 self._avg_response_time = 0
                 self._total_requests = 0
                 self._green = False
+                self._capacity = capacity
+
+                # TODO: Research how much CO2/Req is released
+                self._carbon_emission = None
+                # TODO: Research Server's energy consumption.
+                self._energy_usage = None
 
                 # variables for fake congestion
                 self.time_of_first_request_in_span = time()
@@ -123,7 +129,17 @@ class MockServer:
         def terminate_app(self, app: Flask):
                 pass
 
-        def create_app(self) -> Flask:       
+        def update_weight(self):
+                # Percentage of server 
+                server_load = self.num_of_req_in_window / self._capacity
+
+                if server_load < .50:
+                        self.weight += .125
+                else:
+                        self.weight -= .125
+    
+
+        def create_app(self, isDynamic: bool = False) -> Flask:       
                 app = Flask(__name__)
                 @app.route("/get", methods=['GET'])
                 def simulate_get():
@@ -134,20 +150,23 @@ class MockServer:
                                 # Adjust multiplicative factor to increase amount of delay
                                 sleep(self.num_of_req_in_window/1000*10)
                                 self.num_of_req_in_window += 1
+                        
+                        if isDynamic:
+                                self.update_weight()
                         return f"Get request successful at port: {self.port}."
 
                 self.app = app
                 return app
 
 # Server Params allows us to specify region and whether a server is green.
-def create_servers(server_params: Dict[str, int]) -> List[MockServer]:
+def create_servers(server_params: Dict[str, int], isDynamic=False) -> List[MockServer]:
     servers: List[MockServer] = []
     global curr_port
     for server_type, server_num in server_params.items():
         server_info = server_type.split(' ')
         for _ in range(server_num):
             server = MockServer(curr_port)
-            server_app = server.create_app()
+            server_app = server.create_app(isDynamic)
             server.region = MockServer.Region.get_region(server_info[0])
             server.green  = (True if server_info[1] == "Green" else False)
             

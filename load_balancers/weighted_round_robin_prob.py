@@ -28,20 +28,19 @@ class WeightedRoundRobin:
 
     def __init__(self, servers):
         self.servers: List[MockServer] = servers[:]
-        self._assign_weights()
         self.servers = sorted(servers, key= lambda server: server.weight)
         self.total_weight = sum(server.weight for server in servers)
         self.cumulative_weights = self.calculate_cumulative_weights(servers)
         self.random = random.Random()
 
-    def _assign_weights(self):
+    def assign_weights(self, is_fast_response: bool):
 
         # Base static weight on
         # Region.
         # Distance
         # Greeness
 
-        singapore_weight = 5
+        singapore_weight = 6
         japan_weight = 3
         european_weight = 2
         us_weight = 1
@@ -54,15 +53,15 @@ class WeightedRoundRobin:
             region, latency = s.region
             
             if region == "Singapore":
-                s.weight += singapore_weight
+                s.weight = singapore_weight
             elif region == "Tokyo":
-                s.weight += japan_weight
+                s.weight = japan_weight
             elif region == "Berlin":
-                s.weight += european_weight
+                s.weight = european_weight
             elif region == "New York":
-                s.weight += us_weight
+                s.weight = us_weight
 
-            if s.green == True:
+            if s.green == True and not is_fast_response:
                 s.weight += green_serv_weight
 
             s.weight += 1 / s.latency

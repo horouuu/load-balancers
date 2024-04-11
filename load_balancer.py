@@ -4,23 +4,29 @@ from typing import List, Dict
 from clients import MockClient
 from servers import MockServer
 from load_balancers.weighted_round_robin_prob import WeightedRoundRobin
+from load_balancers.dynamic_weighted_rr_prob import DynamicWeightedRoundRobin
 from time import sleep
 
 class LoadBalancer: 
     def __init__(self):
         pass
 
-    async def simulate_weighted_round_robin(servers: List[MockServer], num_of_clients: int, num_of_requests: int):
+    async def simulate_weighted_round_robin(servers: List[MockServer], num_of_clients: int, num_of_requests: int, isDynamic: bool):
         
-        LoadBalancer = WeightedRoundRobin(servers)
-        threads = []
+        if isDynamic:
+            LoadBalancer = DynamicWeightedRoundRobin(servers)
+        else:
+            LoadBalancer = WeightedRoundRobin(servers)
 
-        sleep(1)
+        threads = []
 
         total_num_of_requests = num_of_clients * num_of_requests
 
         while total_num_of_requests > 0:
             client = MockClient()
+            # Assign weights per client as weights depend on client fast_response.
+            LoadBalancer.assign_weights(client.fast_response)
+
             server = LoadBalancer.get_next_server()
             for _ in range(int(server.weight)):
                 t = threading.Thread(target=client.req, args=[server])
