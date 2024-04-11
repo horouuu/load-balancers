@@ -4,9 +4,9 @@ from time import time, sleep
 
 # We assume all clients reside in Singapore!
 class MockClient:
-    def __init__(self) -> None:
+    def __init__(self, fast_response=False) -> None:
         # If true, request should have some tag to let LB know client needs a fast response time.
-        self._fast_response = False
+        self._fast_response = fast_response
     @property
     def fast_response(self):
         return self._fast_response

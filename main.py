@@ -34,9 +34,14 @@ async def static_lb_simulation():
     else: 
         isDynamic = False
 
+    if "-fast-response" in argv:
+        fast_response = True
+    else:
+        fast_response = False
+
     servers: List[MockServer] = create_servers(SEVER_PARAMS, isDynamic)
     t = time()
-    await LoadBalancer.simulate_weighted_round_robin(servers, NUM_CLIENTS, NUM_REQUESTS, isDynamic)
+    await LoadBalancer.simulate_weighted_round_robin(servers, NUM_CLIENTS, NUM_REQUESTS, isDynamic, fast_response)
     t = time() - t
 
     print("-------------------")

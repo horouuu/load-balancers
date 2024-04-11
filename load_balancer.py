@@ -11,7 +11,7 @@ class LoadBalancer:
     def __init__(self):
         pass
 
-    async def simulate_weighted_round_robin(servers: List[MockServer], num_of_clients: int, num_of_requests: int, isDynamic: bool):
+    async def simulate_weighted_round_robin(servers: List[MockServer], num_of_clients: int, num_of_requests: int, isDynamic: bool, fastResponse: bool):
         
         if isDynamic:
             LoadBalancer = DynamicWeightedRoundRobin(servers)
@@ -23,7 +23,7 @@ class LoadBalancer:
         total_num_of_requests = num_of_clients * num_of_requests
 
         while total_num_of_requests > 0:
-            client = MockClient()
+            client = MockClient(fastResponse)
             # Assign weights per client as weights depend on client fast_response.
             LoadBalancer.assign_weights(client.fast_response)
 
