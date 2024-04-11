@@ -14,13 +14,7 @@ class LoadBalancer:
         
         LoadBalancer = WeightedRoundRobin(servers)
         
-        weighted_servers: Dict[MockServer, int] = LoadBalancer.servers
-        sorted_weighted_servers = collections.OrderedDict(dict(
-            sorted(
-                weighted_servers.items(),
-                key=lambda server: server[1],
-                reverse=True)
-            ))
+        weighted_servers: List[MockServer] = LoadBalancer.servers
         
         threads = []
 
@@ -40,7 +34,7 @@ class LoadBalancer:
                 if server is None:
                     continue
                 
-                print("server: ", server.server_address)
+                print("server: ", server._server_address)
                 # Capacity iteration is sent directly to request arg of client.
                 t = threading.Thread(target=client.req, args=[server, server.weight])
                 t.start()

@@ -1,7 +1,7 @@
 from typing import List, Dict, Tuple
 from flask import Flask
 import threading
-from time import sleep
+from time import sleep, time
 from random import choice
 
 PORT_START = 5000
@@ -39,15 +39,20 @@ class MockServer:
                         except KeyError:
                                 return ("Singapore", 2)
 
-        def __init__(self, app, port):
+        def __init__(self, port):
                 self._port = port
-                self._app = app
+                self._app = None
                 self._region = MockServer.Region.get_random_region()
                 self._weight = 0
                 self._server_address = f"127.0.0.1:{self._port}"
                 self._avg_response_time = 0
                 self._total_requests = 0
                 self._green = False
+
+                # variables for fake congestion
+                self.time_of_first_request_in_span = time()
+                self.window = 1 # window of time that the server considers
+                self.num_of_req_in_window = 0
 
                 self._latency = MockServer.Region.get_latency(self.region)
 
@@ -58,6 +63,11 @@ class MockServer:
         @property
         def app(self):
                 return self._app
+        
+        @app.setter
+        def app(self, app):
+                self._app = app
+
 
         @property
         def server_address(self):
@@ -113,26 +123,21 @@ class MockServer:
         def terminate_app(self, app: Flask):
                 pass
 
-
-        @staticmethod
-        def create_app(port):       
+        def create_app(self) -> Flask:       
                 app = Flask(__name__)
                 @app.route("/get", methods=['GET'])
                 def simulate_get():
-                        return f"Get request successful at port: {port}."
+                        if time() > self.time_of_first_request_in_span + self.window:
+                                self.time_of_first_request_in_span = time()
+                                self.num_of_req_in_window = 1
+                        else: 
+                                # Adjust multiplicative factor to increase amount of delay
+                                sleep(self.num_of_req_in_window/1000*10)
+                                self.num_of_req_in_window += 1
+                        return f"Get request successful at port: {self.port}."
 
-                @app.route("/count", methods=['GET'])
-                def count_to_1000():
-                        for i in range(1, 1001):
-                                print(i)
-
-                        return f"Successfully counted to 1000!"
-
-                @app.route("/sort", methods=['POST'])
-                def sort_array():
-                        return None
-
-                return MockServer(app, port)
+                self.app = app
+                return app
 
 # Server Params allows us to specify region and whether a server is green.
 def create_servers(server_params: Dict[str, int]) -> List[MockServer]:
@@ -141,14 +146,15 @@ def create_servers(server_params: Dict[str, int]) -> List[MockServer]:
     for server_type, server_num in server_params.items():
         server_info = server_type.split(' ')
         for _ in range(server_num):
-            appObj = MockServer.create_app(curr_port)
-            appObj.region = MockServer.Region.get_region(server_info[0])
-            appObj.green  = (True if server_info[1] == "Green" else False)
+            server = MockServer(curr_port)
+            server_app = server.create_app()
+            server.region = MockServer.Region.get_region(server_info[0])
+            server.green  = (True if server_info[1] == "Green" else False)
             
             # Start server threat
-            t = threading.Thread(target= lambda: appObj.app.run(host='127.0.0.1', port=appObj.port, debug=False, threaded=True))
+            t = threading.Thread(target= lambda: server_app.run(host='127.0.0.1', port=server.port, debug=False, threaded=True))
             t.start()
-            servers.append(appObj)
+            servers.append(server)
             curr_port += 1
             sleep(0.1)
 

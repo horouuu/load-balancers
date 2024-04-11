@@ -47,7 +47,7 @@ class WeightedRoundRobin:
 
     def get_next_server(self) -> Optional[dict[MockServer, float]]:
         # randomly choose a server (to send request)
-        random_value = int(self.random.random() * max(list(self.servers.values())))
+        random_value = int(self.random.random() * max([server.weight for server in self.servers]))
         for server in self.servers:
             if random_value < server.weight:
                 return server
