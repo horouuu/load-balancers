@@ -151,7 +151,7 @@ class MockServer:
                         else:
                                 # Adjust multiplicative factor to increase amount of delay
                                 delay_factor = exp(self.num_of_req_in_window) / 1000   
-                                sleep(delay_factor)
+                                sleep(delay_factor.real)
                                 self.num_of_req_in_window += 1
                         
                         if isDynamic:
