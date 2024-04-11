@@ -30,7 +30,7 @@ class LoadBalancer:
         for _ in range(num_of_clients):
             client = MockClient()
             for server, weight in sorted_weighted_servers.items():
-                print("server: ", server.server_address)
+                print("server: ", server._server_address)
                 # Capacity iteration is sent directly to request arg of client.
                 t = threading.Thread(target=client.req, args=[server, weight])
                 threads.append(t)
