@@ -1,6 +1,5 @@
 from servers import MockServer
 from typing import List, Optional
-import random
 
 '''
     This Load Balancing algorithm uses 'weights' that the admin can assign to
