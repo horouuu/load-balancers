@@ -29,22 +29,16 @@ class MockServer:
                         return 2*(region[1]*1000/MockServer.Region.prop_constant*1000 + 8*MockServer.Region.processing_delay) + cls_delay
 
                 @staticmethod
-                def get_random_region():
-                        map_keys = list(MockServer.Region.region_map.keys())
-                        k = choice(map_keys)
-                        return MockServer.Region.region_map[k]
-
-                @staticmethod
                 def get_region(code):
                         try:
                                 return MockServer.Region.region_map[code]
                         except KeyError:
                                 return ("Singapore", 2)
 
-        def __init__(self, port, capacity=10):
+        def __init__(self, port, region, capacity=10):
                 self._port = port
                 self._app = None
-                self._region = MockServer.Region.get_random_region()
+                self.region = MockServer.Region.get_region(region)
                 self._weight = 0 # reset
                 self._server_address = f"127.0.0.1:{self._port}" 
                 self._avg_response_time = 0 # reset
@@ -142,9 +136,9 @@ class MockServer:
                 server_load = self.num_of_req_in_window / self._capacity
 
                 if server_load < .50:
-                        self.weight += .125
+                        self.weight += .25 * self.num_of_req_in_window
                 else:
-                        self.weight -= .125
+                        self.weight -= .25
     
 
         def create_app(self, isDynamic: bool = False) -> Flask:       
@@ -156,7 +150,8 @@ class MockServer:
                                 self.num_of_req_in_window = 1
                         else:
                                 # Adjust multiplicative factor to increase amount of delay
-                                sleep(exp(self.num_of_req_in_window/1000*10*10).real)
+                                delay_factor = exp(self.num_of_req_in_window) / 1000   
+                                sleep(delay_factor)
                                 self.num_of_req_in_window += 1
                         
                         if isDynamic:
@@ -177,7 +172,7 @@ def create_servers(server_params: Dict[str, int], isDynamic=False) -> List[MockS
     for server_type, server_num in server_params.items():
         server_info = server_type.split(' ')
         for _ in range(server_num):
-            server = MockServer(curr_port)
+            server = MockServer(curr_port, server_info[0])
             server_app = server.create_app(isDynamic)
             server.region = MockServer.Region.get_region(server_info[0])
             server.green  = (True if server_info[1] == "Green" else False)
