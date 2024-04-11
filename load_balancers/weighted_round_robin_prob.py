@@ -41,7 +41,7 @@ class WeightedRoundRobin:
         # Distance
         # Greeness
 
-        singapore_weight = 4
+        singapore_weight = 5
         japan_weight = 3
         european_weight = 2
         us_weight = 1

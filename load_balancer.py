@@ -20,12 +20,9 @@ class LoadBalancer:
         # TODO: Add some logic to determine split between fast_response clients and normal clients.
         for _ in range(num_of_clients):
             client = MockClient()
-            server = LoadBalancer.get_next_server()
-            print("server: ", server._server_address)
             for _ in range(num_of_requests):
-                if server is None:
-                    continue
-                
+                server = LoadBalancer.get_next_server()
+    
                 # Capacity iteration is sent directly to request arg of client.
                 t = threading.Thread(target=client.req, args=[server])
                 t.start()
