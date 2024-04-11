@@ -31,9 +31,13 @@ async def static_lb_simulation():
     t = time()
     await LoadBalancer.simulate_weighted_round_robin(servers, NUM_CLIENTS, NUM_REQUESTS)
     t = time() - t
-    print(f"Time taken: {t*1000} ms to complete {NUM_REQUESTS} requests.")
-    for server in servers:
-        print(server.avg_response_time, server.weight)
+
+    print("-------------------")
+    print("Summary")
+    print("-------------------")
+    print(f"Time taken: {t*1000} ms to complete {NUM_REQUESTS} requests.\n")
+    for server in sorted(servers, key= lambda s: s.weight, reverse=True):
+        print(f"{server.region[0]}{" (Green)" if server.green else ""}:\nAverage response time: {server.avg_response_time} ms\nWeight: {server.weight}\n")
 
 if __name__ == "__main__": 
     main()
