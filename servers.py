@@ -128,7 +128,7 @@ class MockServer:
         @property
         def trans_power_usage(self):
                 # two-way transmission power usage
-                return (self.total_requests * self.avg_response_time * self.region[2])*2
+                return (self.total_requests * 0.0005 * self.region[2])*2
 
         @staticmethod
         def terminate_app(self, app: Flask):

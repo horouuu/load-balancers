@@ -4,6 +4,7 @@ from load_balancer import LoadBalancer
 from servers import MockServer, create_servers
 from time import time
 from sys import argv
+from math import ceil, floor
 
 NUM_CLIENTS = 1
 NUM_REQUESTS = 1000    # Note :: This will be PER CLIENT. if NUM_CLIENTS = 10 and NUM_REQUEST = 100; then
@@ -45,17 +46,19 @@ async def static_lb_simulation():
     print("-------------------")
     print(f"Summary {'(Dynamic)' if isDynamic else ''}")
     print("-------------------")
-    print(f"Time taken: {t*1000} ms to complete {NUM_REQUESTS * NUM_CLIENTS} requests.\n")
     for server in sorted(servers, key= lambda s: s.weight, reverse=True):
         print(f'{server.region[0]}{"(Green)" if server.green else ""}:\nAverage response time: {server.avg_response_time} ms\nWeight: {server.weight}\nTotal # of requests: {server._total_requests}\n')
-        if server.green: total_green += 1
+        total_green += server.green * server.total_requests
         total_requests += server.total_requests
         total_power_usage += server.trans_power_usage
-    print(f"Time taken: {t*1000} ms to complete {NUM_REQUESTS} requests.")
+    print("-------------------")
+    print(f"Analytics {'(Dynamic)' if isDynamic else ''}")
+    print("-------------------")
+    print(f"Time taken: {t*1000} ms to complete {NUM_REQUESTS * NUM_CLIENTS} requests.\n")
     print(f"Total requests served: {total_requests}")
-    print(f"Total power used in transmitting data: {total_power_usage/1000} kW.")
+    print(f"Total power used in transmitting data: {ceil(total_power_usage/1000)} kW.")
     print(f"Total green requests: {total_green}")
-    print(f"Percentage of requests that used green energy servers: {total_green/total_requests * 100}%")
+    print(f"Percentage of requests that used green energy servers: {floor(total_green/total_requests * 100)}%")
 
 
 if __name__ == "__main__": 
